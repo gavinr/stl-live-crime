@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>St. Louis Live Crime</title>
+    <meta name="description" content="A live map of crime in the city of St. Louis, MO">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+
+    <div id="viewDiv"></div>
+
+    <script>
+      var dojoConfig = {
+        paths: {
+          build: location.pathname.replace(/\/[^/]+$/, "") + "build"
+        }
+      };
+    </script>
+    <script src="https://js.arcgis.com/4.0/"></script>
+    <script>
+      require(['build/main'], function(main) {
+        var controller = new main;
+        controller.init();
+      });
+    </script>
+  </body>
+</html>
