@@ -1,4 +1,4 @@
-# stl-live-crime
+# St. Louis Live Crime
 A live map of crime in the city of St. Louis, MO
 
 ## Techologies
