@@ -1,5 +1,5 @@
 # St. Louis Live Crime
-A live map of crime in the city of St. Louis, MO
+A live map of crime in the city of St. Louis, MO. [View Here](http://gavinr.github.io/stl-live-crime/)
 
 ## Techologies
 
