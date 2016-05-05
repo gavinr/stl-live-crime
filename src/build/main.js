@@ -9,7 +9,7 @@ define(['dojo/_base/declare', 'esri/Map', 'esri/views/MapView', 'esri/config', '
       var view = new MapView({
         container: "viewDiv",
         map: map,
-        scale: 500000,
+        scale: 200000,
         center: [-90.199404, 38.627003]
       });
       this.updateLayer(map);
