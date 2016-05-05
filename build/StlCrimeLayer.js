@@ -1,4 +1,4 @@
-define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/GraphicsLayer', 'esri/request', 'dojo/dom-construct', 'dojo/query', 'dojo/NodeList-traverse', 'esri/Graphic', 'esri/symbols/SimpleMarkerSymbol', 'esri/geometry/Point', 'esri/PopupTemplate'], function (declare, _WidgetBase, GraphicsLayer, esriRequest, domConstruct, query, nlTravers, Graphic, SimpleMarkerSymbol, Point, PopupTemplate) {
+define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', 'esri/request', 'dojo/dom-construct', 'dojo/query', 'dojo/NodeList-traverse', 'esri/Graphic', 'esri/renderers/UniqueValueRenderer', 'esri/symbols/SimpleMarkerSymbol', 'esri/geometry/Point', 'esri/PopupTemplate'], function (declare, _WidgetBase, FeatureLayer, esriRequest, domConstruct, query, nlTravers, Graphic, UniqueValueRenderer, SimpleMarkerSymbol, Point, PopupTemplate) {
   var _slicedToArray = function () {
     function sliceIterator(arr, i) {
       var _arr = [];
@@ -40,8 +40,6 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/GraphicsLayer', 
   return declare([_WidgetBase], {
     postCreate: function postCreate() {
       this.inherited(arguments);
-      this.graphicsLayer = new GraphicsLayer();
-      this.map.add(this.graphicsLayer);
       this.updateLayer();
     },
     updateLayer: function updateLayer() {
@@ -63,10 +61,23 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/GraphicsLayer', 
           address = _query$map2[2];
           offense = _query$map2[3];
 
-          return { date: date, id: id, address: address.replace('XX ', '00 ').replace(' / ', ' and ') + ', St. Louis, MO, USA', offense: offense };
+          return { date: date, id: id, address: address.replace('XX ', '00 ').replace(' / ', ' and ') + ', St. Louis, MO, USA', offense: offense, size: _this.getSize(date) };
         });
         _this.addData(allData, 'id');
       });
+    },
+    getSize: function getSize(date) {
+      var d = new Date(date);
+      var difference = Math.abs(new Date() - d);
+      if (difference < 3600000) {
+        // 1 hour
+        return 3;
+      } else if (difference < 7200000) {
+        // 2 hours
+        return 2;
+      } else {
+        return 1;
+      }
     },
     getData: function getData(url) {
       return esriRequest(url, {
@@ -76,26 +87,23 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/GraphicsLayer', 
     addData: function addData(data, keyField) {
       var _this2 = this;
 
-      data.forEach(function (crimeObject) {
-        _this2.geocode(crimeObject.address).then(function (geocodeResult) {
-          if (geocodeResult.data.locations.length > 0) {
-            var graphic = new Graphic({
-              attributes: crimeObject,
-              geometry: new Point({ latitude: geocodeResult.data.locations[0].feature.geometry.y, longitude: geocodeResult.data.locations[0].feature.geometry.x }),
-              symbol: new SimpleMarkerSymbol({
-                style: "diamond",
-                color: [255, 128, 45], // No need to write new Color()
-                outline: { // No need for new SimpleLineSymbol()
-                  style: "dash-dot",
-                  color: [255, 128, 45] // Again, no need for new Color()
-                }
-              }),
-              popupTemplate: new PopupTemplate({ title: '{offense}', content: '{address}<br />{date}' })
-            });
-            _this2.graphicsLayer.add(graphic);
-          }
+      this.graphicsArr = [];
+      this.geocodeAll(data).then(function (geocodedResults) {
+        var graphicsArr = geocodedResults.map(function (res, i) {
+          return new Graphic({
+            attributes: data[i],
+            geometry: new Point({ latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x })
+          });
         });
+        _this2.updateMap(graphicsArr);
       });
+    },
+    geocodeAll: function geocodeAll(crimeObject) {
+      var _this3 = this;
+
+      return Promise.all(crimeObject.map(function (obj) {
+        return _this3.geocode(obj.address);
+      }));
     },
     geocode: function geocode(address) {
       return esriRequest('http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find', {
@@ -105,6 +113,84 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/GraphicsLayer', 
           f: 'json'
         }
       });
+    },
+    updateMap: function updateMap(graphicsArr) {
+      if (this.fl) {
+        this.map.remove(this.fl);
+        this.fl.destroy();
+      }
+
+      this.fl = new FeatureLayer({
+        // create an instance of esri/layers/support/Field for each field object
+        fields: [{
+          name: "id",
+          alias: "id",
+          type: "oid"
+        }, {
+          name: "address",
+          alias: "address",
+          type: "string"
+        }, {
+          name: "date",
+          alias: "date",
+          type: "string"
+        }, {
+          name: "offense",
+          alias: "offense",
+          type: "string"
+        }],
+        objectIdField: "id",
+        geometryType: "point",
+        spatialReference: { wkid: 4326 },
+        source: graphicsArr,
+        popupTemplate: new PopupTemplate({ title: '{offense}', content: '{address}<br />{date}' }),
+        renderer: this.getUvr(graphicsArr, 'offense')
+      });
+      this.map.add(this.fl);
+    },
+    getUvr: function getUvr(graphicsArr, attribute) {
+      var _this4 = this;
+
+      // get unique list:
+      var uniqueAttrs = [];
+      graphicsArr.forEach(function (item) {
+        if (uniqueAttrs.indexOf(item.attributes[attribute]) === -1) {
+          uniqueAttrs.push(item.attributes[attribute]);
+        }
+      });
+
+      var retRenderer = new UniqueValueRenderer({
+        field: attribute,
+        defaultSymbol: new SimpleMarkerSymbol()
+      });
+
+      // unique colors for the "types" of crimes
+      uniqueAttrs.forEach(function (uniqueAttr) {
+        retRenderer.addUniqueValueInfo(uniqueAttr, new SimpleMarkerSymbol({
+          color: _this4.hashStringToColor(uniqueAttr)
+        }));
+      });
+
+      // more recent events should be larger. older = smaller
+      retRenderer.visualVariables = [{
+        'type': 'size',
+        'field': 'size',
+        'minSize': 5,
+        'maxSize': 18,
+        'minDataValue': 1,
+        'maxDataValue': 3
+      }];
+
+      return retRenderer;
+    },
+    hashStringToColor: function hashStringToColor(str) {
+      // str to hash - from http://stackoverflow.com/a/16348977/2039
+      for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash)) {}
+
+      // int/hash to hex
+      for (var i = 0, colour = "#"; i < 3; colour += ("00" + (hash >> i++ * 8 & 0xFF).toString(16)).slice(-2)) {}
+
+      return colour;
     }
   });
 });
