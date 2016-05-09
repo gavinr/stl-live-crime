@@ -47,7 +47,6 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
 
       this.getData('https://crossorigin.me/http://www.slmpd.org/cfs.aspx').then(function (data) {
         var node = domConstruct.toDom(data.data);
-
         // parse the data we're getting back from STLMPD website:
         var allData = query('table', node).children('tbody').children('tr').map(function (node) {
           var _query$map = query('td font', node).map(function (td) {
@@ -87,14 +86,20 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
     addData: function addData(data, keyField) {
       var _this2 = this;
 
-      this.graphicsArr = [];
       this.geocodeAll(data).then(function (geocodedResults) {
         var graphicsArr = geocodedResults.map(function (res, i) {
-          return new Graphic({
-            attributes: data[i],
-            geometry: new Point({ latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x })
-          });
+          if (res.data.locations && res.data.locations.length > 0) {
+            return new Graphic({
+              attributes: data[i],
+              geometry: new Point({ latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x })
+            });
+          } else {
+            return false;
+          }
+        }).filter(function (arrayValue) {
+          return !!arrayValue;
         });
+
         _this2.updateMap(graphicsArr);
       });
     },

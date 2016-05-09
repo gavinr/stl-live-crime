@@ -20,7 +20,6 @@ export default declare([_WidgetBase], {
   updateLayer() {
     this.getData('https://crossorigin.me/http://www.slmpd.org/cfs.aspx').then((data) => {
       let node = domConstruct.toDom(data.data);
-
       // parse the data we're getting back from STLMPD website:
       let allData = query('table', node).children('tbody').children('tr').map((node) => {
         [date, id, address, offense] = query('td font', node).map((td) => {return td.innerHTML;});
@@ -52,16 +51,22 @@ export default declare([_WidgetBase], {
   },
 
   addData(data, keyField) {
-    this.graphicsArr = [];
     this.geocodeAll(data).then((geocodedResults) => {
       let graphicsArr = geocodedResults.map((res, i) => {
-        return new Graphic({
-          attributes: data[i],
-          geometry: new Point({latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x}),
-        })
-      });
-      this.updateMap(graphicsArr);
+        if (res.data.locations && res.data.locations.length > 0) {
+          return new Graphic({
+            attributes: data[i],
+            geometry: new Point({latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x}),
+          });
+        } else {
+          return false;
+        }
 
+      }).filter((arrayValue) => {
+        return (!!arrayValue);
+      });
+
+      this.updateMap(graphicsArr);
     });
   },
 
