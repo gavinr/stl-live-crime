@@ -43,4 +43,6 @@ gulp.task('deploy', function() {
     .pipe(ghPages());
 });
 
+gulp.task('default', ['watch']);
+
 // TODO: https://css-tricks.com/gulp-for-beginners/#article-header-id-10
