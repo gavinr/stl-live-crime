@@ -1,4 +1,4 @@
-define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', 'esri/request', 'dojo/dom-construct', 'dojo/query', 'dojo/NodeList-traverse', 'esri/Graphic', 'esri/renderers/UniqueValueRenderer', 'esri/symbols/SimpleMarkerSymbol', 'esri/geometry/Point', 'esri/PopupTemplate'], function (declare, _WidgetBase, FeatureLayer, esriRequest, domConstruct, query, nlTravers, Graphic, UniqueValueRenderer, SimpleMarkerSymbol, Point, PopupTemplate) {
+define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', 'esri/request', 'dojo/dom-construct', 'dojo/query', 'dojo/NodeList-traverse', 'esri/Graphic', 'esri/renderers/UniqueValueRenderer', 'esri/symbols/SimpleMarkerSymbol', 'esri/geometry/Point', 'esri/PopupTemplate', 'dojo/Evented'], function (declare, _WidgetBase, FeatureLayer, esriRequest, domConstruct, query, nlTravers, Graphic, UniqueValueRenderer, SimpleMarkerSymbol, Point, PopupTemplate, Evented) {
   var _slicedToArray = function () {
     function sliceIterator(arr, i) {
       var _arr = [];
@@ -37,7 +37,7 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
     };
   }();
 
-  return declare([_WidgetBase], {
+  return declare([_WidgetBase, Evented], {
     postCreate: function postCreate() {
       this.inherited(arguments);
       this.updateLayer();
@@ -47,7 +47,6 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
 
       this.getData('https://crossorigin.me/http://www.slmpd.org/cfs.aspx').then(function (data) {
         var node = domConstruct.toDom(data.data);
-
         // parse the data we're getting back from STLMPD website:
         var allData = query('table', node).children('tbody').children('tr').map(function (node) {
           var _query$map = query('td font', node).map(function (td) {
@@ -67,34 +66,40 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
       });
     },
     getSize: function getSize(date) {
-      var d = new Date(date);
-      var difference = Math.abs(new Date() - d);
+      var difference = Math.abs(new Date() - new Date(date));
+      var retSize = 1;
       if (difference < 3600000) {
         // 1 hour
-        return 3;
+        retSize = 3;
       } else if (difference < 7200000) {
         // 2 hours
-        return 2;
-      } else {
-        return 1;
+        retSize = 2;
       }
+      return retSize;
     },
     getData: function getData(url) {
       return esriRequest(url, {
         responseType: 'text'
       });
     },
-    addData: function addData(data, keyField) {
+    addData: function addData(data) {
       var _this2 = this;
 
-      this.graphicsArr = [];
       this.geocodeAll(data).then(function (geocodedResults) {
         var graphicsArr = geocodedResults.map(function (res, i) {
-          return new Graphic({
-            attributes: data[i],
-            geometry: new Point({ latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x })
-          });
+          var ret = false;
+          if (res.data.locations && res.data.locations.length > 0) {
+            ret = new Graphic({
+              attributes: data[i],
+              geometry: new Point({ latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x })
+            });
+          }
+
+          return ret;
+        }).filter(function (arrayValue) {
+          return arrayValue;
         });
+
         _this2.updateMap(graphicsArr);
       });
     },
@@ -107,10 +112,10 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
     },
     geocode: function geocode(address) {
       return esriRequest('http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find', {
-        responseType: 'json',
-        query: {
-          text: address,
-          f: 'json'
+        'responseType': 'json',
+        'query': {
+          'text': address,
+          'f': 'json'
         }
       });
     },
@@ -147,6 +152,7 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
         renderer: this.getUvr(graphicsArr, 'offense')
       });
       this.map.add(this.fl);
+      this.emit('featureLayerAdded');
     },
     getUvr: function getUvr(graphicsArr, attribute) {
       var _this4 = this;

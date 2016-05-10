@@ -10,8 +10,9 @@ import UniqueValueRenderer from 'esri/renderers/UniqueValueRenderer';
 import SimpleMarkerSymbol from 'esri/symbols/SimpleMarkerSymbol';
 import Point from 'esri/geometry/Point';
 import PopupTemplate from 'esri/PopupTemplate';
+import Evented from 'dojo/Evented';
 
-export default declare([_WidgetBase], {
+export default declare([_WidgetBase, Evented], {
   postCreate() {
     this.inherited(arguments);
     this.updateLayer();
@@ -20,10 +21,9 @@ export default declare([_WidgetBase], {
   updateLayer() {
     this.getData('https://crossorigin.me/http://www.slmpd.org/cfs.aspx').then((data) => {
       let node = domConstruct.toDom(data.data);
-
       // parse the data we're getting back from STLMPD website:
       let allData = query('table', node).children('tbody').children('tr').map((node) => {
-        [date, id, address, offense] = query('td font', node).map((td) => {return td.innerHTML;});
+        [date, id, address, offense] = query('td font', node).map((td) => { return td.innerHTML; });
         return {date: date, id: id, address: address.replace('XX ', '00 ').replace(' / ', ' and ') + ', St. Louis, MO, USA', offense: offense, size: this.getSize(date)};
       });
       this.addData(allData, 'id');
@@ -32,17 +32,16 @@ export default declare([_WidgetBase], {
 
   /** based on the time, give a "size" value. 3 for more recent, 1 for older **/
   getSize(date) {
-    var d = new Date(date);
-    var difference = Math.abs(new Date() - d);
+    let difference = Math.abs(new Date() - new Date(date));
+    let retSize = 1;
     if (difference < 3600000) {
       // 1 hour
-      return 3;
+      retSize = 3;
     } else if (difference < 7200000) {
       // 2 hours
-      return 2;
-    } else {
-      return 1;
+      retSize = 2;
     }
+    return retSize;
   },
 
   getData(url) {
@@ -51,34 +50,36 @@ export default declare([_WidgetBase], {
     });
   },
 
-  addData(data, keyField) {
-    this.graphicsArr = [];
+  addData(data) {
     this.geocodeAll(data).then((geocodedResults) => {
       let graphicsArr = geocodedResults.map((res, i) => {
-        return new Graphic({
-          attributes: data[i],
-          geometry: new Point({latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x}),
-        })
-      });
-      this.updateMap(graphicsArr);
+        let ret = false;
+        if (res.data.locations && res.data.locations.length > 0) {
+          ret = new Graphic({
+            attributes: data[i],
+            geometry: new Point({latitude: res.data.locations[0].feature.geometry.y, longitude: res.data.locations[0].feature.geometry.x})
+          });
+        }
 
+        return ret;
+      }).filter((arrayValue) => arrayValue);
+
+      this.updateMap(graphicsArr);
     });
   },
 
   geocodeAll(crimeObject) {
-    return Promise.all(crimeObject.map((obj) => {
-      return this.geocode(obj.address);
-    }));
+    return Promise.all(crimeObject.map((obj) => this.geocode(obj.address)));
   },
 
   geocode(address) {
     return esriRequest('http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find', {
-      responseType: 'json',
-      query: {
-        text: address,
-        f: 'json'
+      'responseType': 'json',
+      'query': {
+        'text': address,
+        'f': 'json'
       }
-    })
+    });
   },
 
   updateMap(graphicsArr) {
@@ -109,19 +110,20 @@ export default declare([_WidgetBase], {
        }],
        objectIdField: "id",
        geometryType: "point",
-       spatialReference: { wkid: 4326 },
+       spatialReference: {wkid: 4326},
        source: graphicsArr,
        popupTemplate: new PopupTemplate({title: '{offense}', content: '{address}<br />{date}'}),
        renderer: this.getUvr(graphicsArr, 'offense')
     });
     this.map.add(this.fl);
+    this.emit('featureLayerAdded');
   },
 
   getUvr(graphicsArr, attribute) {
     // get unique list:
     let uniqueAttrs = [];
     graphicsArr.forEach((item) => {
-      if(uniqueAttrs.indexOf(item.attributes[attribute]) === -1) {
+      if (uniqueAttrs.indexOf(item.attributes[attribute]) === -1) {
         uniqueAttrs.push(item.attributes[attribute]);
       }
     });

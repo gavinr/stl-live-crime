@@ -3,17 +3,22 @@ import Map from 'esri/Map';
 import MapView from 'esri/views/MapView';
 import esriConfig from 'esri/config';
 import StlCrimeLayer from './StlCrimeLayer';
-import domReady from 'dojo/domReady!';
+import LoadingIcon from './LoadingIcon';
+import on from 'dojo/on';
 
 
 export default declare([], {
   init() {
     esriConfig.request.corsEnabledServers.push('crossorigin.me');
 
+    this.loadingIcon = new LoadingIcon();
+    this.loadingIcon.startup();
+    this.loadingIcon.show();
+
     let map = new Map({
       basemap: "streets"
     });
-    var view = new MapView({
+    let view = new MapView({
       container: "viewDiv",
       map: map,
       scale: 200000,
@@ -25,6 +30,9 @@ export default declare([], {
   updateLayer(map) {
     this.stlCrimeLayer = new StlCrimeLayer({
       map: map
+    });
+    on(this.stlCrimeLayer, 'featureLayerAdded', () => {
+      this.loadingIcon.hide();
     });
   }
 });
