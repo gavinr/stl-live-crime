@@ -1,7 +1,11 @@
-define(['dojo/_base/declare', 'esri/Map', 'esri/views/MapView', 'esri/config', './StlCrimeLayer', 'dojo/domReady!'], function (declare, Map, MapView, esriConfig, StlCrimeLayer, domReady) {
+define(['dojo/_base/declare', 'esri/Map', 'esri/views/MapView', 'esri/config', './StlCrimeLayer', './LoadingIcon', 'dojo/on'], function (declare, Map, MapView, esriConfig, StlCrimeLayer, LoadingIcon, on) {
   return declare([], {
     init: function init() {
       esriConfig.request.corsEnabledServers.push('crossorigin.me');
+
+      this.loadingIcon = new LoadingIcon();
+      this.loadingIcon.startup();
+      this.loadingIcon.show();
 
       var map = new Map({
         basemap: "streets"
@@ -15,8 +19,13 @@ define(['dojo/_base/declare', 'esri/Map', 'esri/views/MapView', 'esri/config', '
       this.updateLayer(map);
     },
     updateLayer: function updateLayer(map) {
+      var _this = this;
+
       this.stlCrimeLayer = new StlCrimeLayer({
         map: map
+      });
+      on(this.stlCrimeLayer, 'featureLayerAdded', function () {
+        _this.loadingIcon.hide();
       });
     }
   });
