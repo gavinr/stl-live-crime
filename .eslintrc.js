@@ -1,4 +1,4 @@
-module.exports = {
+gmodule.exports = {
     "env": {
         "browser": true,
         "es6": true
@@ -160,7 +160,7 @@ module.exports = {
         "no-with": "error",
         "object-curly-spacing": "error",
         "object-shorthand": "off",
-        "one-var": "error",
+        "one-var": "off",
         "one-var-declaration-per-line": "off",
         "operator-assignment": "error",
         "operator-linebreak": "error",

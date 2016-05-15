@@ -45,7 +45,7 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
     updateLayer: function updateLayer() {
       var _this = this;
 
-      this.getData('https://crossorigin.me/http://www.slmpd.org/cfs.aspx').then(function (data) {
+      this.getData('https://jsonp.afeld.me?url=http://www.slmpd.org/cfs.aspx').then(function (data) {
         var node = domConstruct.toDom(data.data);
         // parse the data we're getting back from STLMPD website:
         var allData = query('table', node).children('tbody').children('tr').map(function (node) {
@@ -63,6 +63,8 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
           return { date: date, id: id, address: address.replace('XX ', '00 ').replace(' / ', ' and ') + ', St. Louis, MO, USA', offense: offense, size: _this.getSize(date) };
         });
         _this.addData(allData, 'id');
+      }, function (err) {
+        console.log('ERROR', err);
       });
     },
     getSize: function getSize(date) {
@@ -75,6 +77,7 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase', 'esri/layers/FeatureLayer', '
         // 2 hours
         retSize = 2;
       }
+
       return retSize;
     },
     getData: function getData(url) {
