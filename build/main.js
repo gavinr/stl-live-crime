@@ -1,7 +1,7 @@
 define(['dojo/_base/declare', 'esri/Map', 'esri/views/MapView', 'esri/config', './StlCrimeLayer', './LoadingIcon', 'dojo/on'], function (declare, Map, MapView, esriConfig, StlCrimeLayer, LoadingIcon, on) {
   return declare([], {
     init: function init() {
-      esriConfig.request.corsEnabledServers.push('crossorigin.me');
+      esriConfig.request.corsEnabledServers.push('jsonp.afeld.me');
 
       this.loadingIcon = new LoadingIcon();
       this.loadingIcon.startup();

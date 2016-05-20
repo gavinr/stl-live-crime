@@ -19,7 +19,7 @@ export default declare([_WidgetBase, Evented], {
   },
 
   updateLayer() {
-    this.getData('https://crossorigin.me/http://www.slmpd.org/cfs.aspx').then((data) => {
+    this.getData('https://jsonp.afeld.me?url=http://www.slmpd.org/cfs.aspx').then((data) => {
       let node = domConstruct.toDom(data.data);
       // parse the data we're getting back from STLMPD website:
       let allData = query('table', node).children('tbody').children('tr').map((node) => {
@@ -27,6 +27,8 @@ export default declare([_WidgetBase, Evented], {
         return {date: date, id: id, address: address.replace('XX ', '00 ').replace(' / ', ' and ') + ', St. Louis, MO, USA', offense: offense, size: this.getSize(date)};
       });
       this.addData(allData, 'id');
+    }, (err) => {
+      console.log('ERROR', err);
     });
   },
 
@@ -41,6 +43,7 @@ export default declare([_WidgetBase, Evented], {
       // 2 hours
       retSize = 2;
     }
+
     return retSize;
   },
 

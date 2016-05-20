@@ -9,7 +9,7 @@ import on from 'dojo/on';
 
 export default declare([], {
   init() {
-    esriConfig.request.corsEnabledServers.push('crossorigin.me');
+    esriConfig.request.corsEnabledServers.push('jsonp.afeld.me');
 
     this.loadingIcon = new LoadingIcon();
     this.loadingIcon.startup();
