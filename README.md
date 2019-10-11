@@ -5,14 +5,12 @@ A live map of crime in the city of St. Louis, MO.
 
 [View Here](http://gavinr.github.io/stl-live-crime/)
 
-## Techologies
+## Technologies
 
-* ArcGIS JS API 4.0
-* ES2015 (Babel transpiler)
-* Gulp
-* Stylus
+* ArcGIS API for JavaScript v4
+* Svelte
 
 ## Get Started
 
 * `npm install`
-* `gulp watch`
+* `npm run dev`
