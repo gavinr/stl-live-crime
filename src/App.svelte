@@ -32,44 +32,63 @@
     var doc = new DOMParser().parseFromString(text, "text/html");
 
     const rows = querySelectorAllFunction("table tbody tr", doc);
-    const values = Promise.all(rows.map(async row => {
-      const [date, id, address, offense] = querySelectorAllFunction(
-        "td",
-        row
-      ).map(cell => {
-        // console.log("returning", cell.querySelector("font").innerHTML);
-        return cell.querySelector("font").innerHTML;
-      });
+    const values = Promise.all(
+      rows.map(async row => {
+        const [date, id, address, offense] = querySelectorAllFunction(
+          "td",
+          row
+        ).map(cell => {
+          // console.log("returning", cell.querySelector("font").innerHTML);
+          return cell.querySelector("font").innerHTML;
+        });
 
-      const fullAddress = address.replace("XX ", "00 ").replace(" / ", " and ") +
+        const fullAddress =
+          address.replace("XX ", "00 ").replace(" / ", " and ") +
           ", St. Louis, MO, USA";
 
-      const location = await Geocoder(fullAddress);
-      console.log('location:', location);
-      let lat = false;
-      let lon = false;
-      if(location.locations.length > 0) {
-        if(location.locations[0].feature.attributes.Score > 90.0) {
-          lat = location.locations[0].feature.geometry.y;
-          lon = location.locations[0].feature.geometry.x;
+        const location = await Geocoder(fullAddress);
+        console.log("location:", location);
+        let lat = false;
+        let lon = false;
+        if (location.locations.length > 0) {
+          if (location.locations[0].feature.attributes.Score > 90.0) {
+            lat = location.locations[0].feature.geometry.y;
+            lon = location.locations[0].feature.geometry.x;
+          }
         }
-      }
 
-      return {
-        date: date,
-        id: id,
-        address: fullAddress,
-        offense: offense,
-        size: getSize(date),
-        lat: lat,
-        lon: lon
-      };
-    }));
+        return {
+          date: date,
+          id: id,
+          address: fullAddress,
+          offense: offense,
+          size: getSize(date),
+          lat: lat,
+          lon: lon
+        };
+      })
+    );
 
     // const location = await Geocoder(values.address);
     // console.log('location', location);
     return values;
   };
+
+  require(["esri/Map", "esri/views/MapView"], function(Map, MapView) {
+    const map = new Map({
+      basemap: "streets"
+    });
+    const view = new MapView({
+      container: "viewDiv",
+      map: map,
+      zoom: 8,
+      center: [-90, 38] // longitude, latitude
+    });
+    // view.watch("center", center => {
+    //   const { latitude, longitude } = center;
+    //   centerText = `Lat: ${latitude.toFixed(2)} | Lon: ${longitude.toFixed(2)}`;
+    // });
+  });
 
   onMount(async function() {
     values = await getCrimes();
@@ -81,21 +100,35 @@
 </script>
 
 <style>
-table td {
-  padding: 5px;
-}
+  .left {
+    float: left;
+    width: 200px;
+  }
+  .left .card {
+    margin-bottom: 20px;
+  }
+  table td {
+    padding: 5px;
+  }
+  #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 400px;
+    width: 400px;
+  }
 </style>
 
 <h1>{name}</h1>
 
-<table>
+<div class="left">
   {#each values as crime}
-    <tr>
-      <td>{crime.offense}</td>
-      <td>{crime.date}</td>
-      <td>{crime.address}</td>
-      <td>{crime.lat}</td>
-      <td>{crime.lon}</td>
-    </tr>
+    <div class="card">
+      {crime.offense}
+      <br />
+      {crime.date}
+      <br />
+      {crime.address} ({crime.lat}, {crime.lon})
+    </div>
   {/each}
-</table>
+</div>
+<div id="viewDiv" />
