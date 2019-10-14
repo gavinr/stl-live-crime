@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import Geocoder from "./Geocoder";
   export let name;
   export let values;
 
@@ -31,7 +32,7 @@
     var doc = new DOMParser().parseFromString(text, "text/html");
 
     const rows = querySelectorAllFunction("table tbody tr", doc);
-    const values = rows.map(row => {
+    const values = Promise.all(rows.map(async row => {
       const [date, id, address, offense] = querySelectorAllFunction(
         "td",
         row
@@ -39,17 +40,34 @@
         // console.log("returning", cell.querySelector("font").innerHTML);
         return cell.querySelector("font").innerHTML;
       });
+
+      const fullAddress = address.replace("XX ", "00 ").replace(" / ", " and ") +
+          ", St. Louis, MO, USA";
+
+      const location = await Geocoder(fullAddress);
+      console.log('location:', location);
+      let lat = false;
+      let lon = false;
+      if(location.locations.length > 0) {
+        if(location.locations[0].feature.attributes.Score > 90.0) {
+          lat = location.locations[0].feature.geometry.y;
+          lon = location.locations[0].feature.geometry.x;
+        }
+      }
+
       return {
         date: date,
         id: id,
-        address:
-          address.replace("XX ", "00 ").replace(" / ", " and ") +
-          ", St. Louis, MO, USA",
+        address: fullAddress,
         offense: offense,
-        size: getSize(date)
+        size: getSize(date),
+        lat: lat,
+        lon: lon
       };
-    });
-    console.log("values", values);
+    }));
+
+    // const location = await Geocoder(values.address);
+    // console.log('location', location);
     return values;
   };
 
@@ -58,18 +76,26 @@
 
     setInterval(async () => {
       values = await getCrimes();
-    }, 10000);
+    }, 30000);
   });
 </script>
 
 <style>
-
+table td {
+  padding: 5px;
+}
 </style>
 
 <h1>{name}</h1>
 
-<ul>
+<table>
   {#each values as crime}
-    <li>{crime.offense} - {crime.date} - {crime.address}</li>
+    <tr>
+      <td>{crime.offense}</td>
+      <td>{crime.date}</td>
+      <td>{crime.address}</td>
+      <td>{crime.lat}</td>
+      <td>{crime.lon}</td>
+    </tr>
   {/each}
-</ul>
+</table>
