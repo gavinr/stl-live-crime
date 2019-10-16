@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { loadModules } from "esri-loader";
   import Geocoder from "./Geocoder";
   export let name;
   export let values;
@@ -74,21 +75,31 @@
     return values;
   };
 
-  require(["esri/Map", "esri/views/MapView"], function(Map, MapView) {
-    const map = new Map({
-      basemap: "streets"
+  loadModules(["esri/Map", "esri/views/MapView"], { css: true })
+    .then(([Map, MapView]) => {
+      // then we load a web map from an id
+      const map = new Map({
+        basemap: "streets"
+      });
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        zoom: 8,
+        center: [-90, 38] // longitude, latitude
+      });
+    })
+    .catch(err => {
+      // handle any errors
+      console.error(err);
     });
-    const view = new MapView({
-      container: "viewDiv",
-      map: map,
-      zoom: 8,
-      center: [-90, 38] // longitude, latitude
-    });
-    // view.watch("center", center => {
-    //   const { latitude, longitude } = center;
-    //   centerText = `Lat: ${latitude.toFixed(2)} | Lon: ${longitude.toFixed(2)}`;
-    // });
-  });
+
+  // require(["esri/Map", "esri/views/MapView"], function(Map, MapView) {
+
+  //   // view.watch("center", center => {
+  //   //   const { latitude, longitude } = center;
+  //   //   centerText = `Lat: ${latitude.toFixed(2)} | Lon: ${longitude.toFixed(2)}`;
+  //   // });
+  // });
 
   onMount(async function() {
     values = await getCrimes();
