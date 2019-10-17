@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import { loadModules } from "esri-loader";
+  import Map from "./Map.svelte";
+  import List from "./List.svelte";
   import Geocoder from "./Geocoder";
   export let name;
   export let values;
@@ -75,32 +76,6 @@
     return values;
   };
 
-  loadModules(["esri/Map", "esri/views/MapView"], { css: true })
-    .then(([Map, MapView]) => {
-      // then we load a web map from an id
-      const map = new Map({
-        basemap: "streets"
-      });
-      const view = new MapView({
-        container: "viewDiv",
-        map: map,
-        zoom: 8,
-        center: [-90, 38] // longitude, latitude
-      });
-    })
-    .catch(err => {
-      // handle any errors
-      console.error(err);
-    });
-
-  // require(["esri/Map", "esri/views/MapView"], function(Map, MapView) {
-
-  //   // view.watch("center", center => {
-  //   //   const { latitude, longitude } = center;
-  //   //   centerText = `Lat: ${latitude.toFixed(2)} | Lon: ${longitude.toFixed(2)}`;
-  //   // });
-  // });
-
   onMount(async function() {
     values = await getCrimes();
 
@@ -115,31 +90,11 @@
     float: left;
     width: 200px;
   }
-  .left .card {
-    margin-bottom: 20px;
-  }
-  table td {
-    padding: 5px;
-  }
-  #viewDiv {
-    padding: 0;
-    margin: 0;
-    height: 400px;
-    width: 400px;
-  }
 </style>
 
 <h1>{name}</h1>
 
 <div class="left">
-  {#each values as crime}
-    <div class="card">
-      {crime.offense}
-      <br />
-      {crime.date}
-      <br />
-      {crime.address} ({crime.lat}, {crime.lon})
-    </div>
-  {/each}
+  <List values={values} />
 </div>
-<div id="viewDiv" />
+<Map />
