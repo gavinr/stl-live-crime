@@ -5,6 +5,7 @@
   import Geocoder from "./Geocoder";
   export let name;
   export let values;
+  export let selectedCrime;
 
   const getSize = date => {
     let difference = Math.abs(new Date() - new Date(date));
@@ -83,18 +84,23 @@
       values = await getCrimes();
     }, 30000);
   });
+
+  function listClickHandler(evt) {
+    console.log('listClickHandler', evt.detail);
+    selectedCrime = evt.detail;
+  }
 </script>
 
 <style>
   .left {
     float: left;
-    width: 200px;
+    width: 400px;
   }
 </style>
 
 <h1>{name}</h1>
 
 <div class="left">
-  <List values={values} />
+  <List values={values} selectedCrime={selectedCrime} on:click={listClickHandler} />
 </div>
-<Map />
+<Map selectedCrime={selectedCrime}  />

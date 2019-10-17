@@ -1,4 +1,8 @@
 <script>
+  export let selectedCrime = '';
+
+  let view;
+
   import { loadModules } from "esri-loader";
   loadModules(["esri/Map", "esri/views/MapView"], { css: true })
     .then(([Map, MapView]) => {
@@ -6,17 +10,24 @@
       const map = new Map({
         basemap: "streets"
       });
-      const view = new MapView({
+      view = new MapView({
         container: "viewDiv",
         map: map,
         zoom: 8,
         center: [-90, 38] // longitude, latitude
       });
+
+      
     })
     .catch(err => {
       // handle any errors
       console.error(err);
     });
+
+    $: if(view && selectedCrime !== '') {
+      view.center = [selectedCrime.lon, selectedCrime.lat];
+      view.zoom = 13;
+    }
 </script>
 
 <style>
@@ -28,4 +39,7 @@
   }
 </style>
 
+{#if selectedCrime !== ''}
+  <div>Selected: {selectedCrime.id}</div>
+{/if}
 <div id="viewDiv" />
