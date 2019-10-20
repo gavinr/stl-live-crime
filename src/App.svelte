@@ -4,18 +4,18 @@
   import List from "./List.svelte";
   import Geocoder from "./Geocoder";
   export let name;
-  export let values;
+  export let values = [];
   export let selectedCrime;
 
   const getSize = date => {
     let difference = Math.abs(new Date() - new Date(date));
-    let retSize = 1;
+    let retSize = 10;
     if (difference < 3600000) {
       // 1 hour
-      retSize = 3;
+      retSize = 30;
     } else if (difference < 7200000) {
       // 2 hours
-      retSize = 2;
+      retSize = 20;
     }
 
     return retSize;
@@ -50,7 +50,7 @@
           ", St. Louis, MO, USA";
 
         const location = await Geocoder(fullAddress);
-        console.log("location:", location);
+        // console.log("location:", location);
         let lat = false;
         let lon = false;
         if (location.locations.length > 0) {
@@ -82,11 +82,11 @@
 
     setInterval(async () => {
       values = await getCrimes();
-    }, 30000);
+    }, 500000);
   });
 
   function listClickHandler(evt) {
-    console.log('listClickHandler', evt.detail);
+    console.log("listClickHandler", evt.detail);
     selectedCrime = evt.detail;
   }
 </script>
@@ -101,6 +101,6 @@
 <h1>{name}</h1>
 
 <div class="left">
-  <List values={values} selectedCrime={selectedCrime} on:click={listClickHandler} />
+  <List {values} {selectedCrime} on:click={listClickHandler} />
 </div>
-<Map selectedCrime={selectedCrime}  />
+<Map crimes={values} {selectedCrime} />
