@@ -40,7 +40,7 @@
 
   $: if (view && selectedCrime !== "") {
     view.center = [selectedCrime.lon, selectedCrime.lat];
-    view.zoom = 16;
+    // view.zoom = 16;
   }
 
   $: if (crimes && crimes.length > 0) {
@@ -97,7 +97,7 @@
     padding: 0;
     margin: 0;
     height: 800px;
-    width: 800px;
+    width: 100%;
   }
 </style>
 

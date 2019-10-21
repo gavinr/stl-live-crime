@@ -98,7 +98,13 @@
 <style>
   .left {
     float: left;
-    width: 400px;
+    width: 20%;
+    height: 800px;
+    overflow-y: scroll;
+  }
+  .mapWrapper {
+    width: 80%;
+    float: left;
   }
 </style>
 
@@ -107,4 +113,6 @@
 <div class="left">
   <List {values} {selectedCrime} on:click={listClickHandler} />
 </div>
-<Map crimes={values} {selectedCrime} />
+<div class="mapWrapper">
+  <Map crimes={values} {selectedCrime} />
+</div>
