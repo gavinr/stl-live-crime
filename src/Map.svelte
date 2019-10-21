@@ -36,10 +36,13 @@
     });
 
   $: if (view && selectedCrime !== "") {
+    console.log("rebuild 1");
+
     view.center = [selectedCrime.lon, selectedCrime.lat];
-    view.zoom = 13;
+    view.zoom = 16;
   }
   $: if (view && crimes && crimes.length > 0) {
+    console.log("rebuild 2");
     loadModules(
       ["esri/layers/GraphicsLayer", "esri/Graphic", "esri/geometry/Point"],
       {

@@ -1,12 +1,15 @@
 <script>
   export let values;
   export let selectedCrime;
-  import { createEventDispatcher } from 'svelte';
 
-  const dispatch  = createEventDispatcher();
+  import { createEventDispatcher } from "svelte";
+  import momentOriginal from "moment";
+  import moment from "moment-timezone";
+
+  const dispatch = createEventDispatcher();
 
   function handleClick(evt) {
-    dispatch('click', evt);
+    dispatch("click", evt);
   }
 </script>
 
@@ -21,11 +24,16 @@
 </style>
 
 {#each values as crime}
-  <div class="card" class:highlight={selectedCrime && crime.id === selectedCrime.id} on:click={() => handleClick(crime)} >
+  <div
+    class="card"
+    class:highlight={selectedCrime && crime.id === selectedCrime.id}
+    on:click={() => handleClick(crime)}>
     {crime.offense}
     <br />
-    {crime.date}
+    <span title={crime.date}>
+      {moment().diff(crime.dateMoment, 'minutes')} minutes ago
+    </span>
     <br />
-    {crime.address} ({crime.lat}, {crime.lon})
+    {crime.address}
   </div>
 {/each}

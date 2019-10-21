@@ -3,6 +3,9 @@
   import Map from "./Map.svelte";
   import List from "./List.svelte";
   import Geocoder from "./Geocoder";
+  import momentOriginal from "moment";
+  import moment from "moment-timezone";
+
   export let name;
   export let values = [];
   export let selectedCrime;
@@ -62,6 +65,7 @@
 
         return {
           date: date,
+          dateMoment: moment.tz(date, "America/Chicago"),
           id: id,
           address: fullAddress,
           offense: offense,
