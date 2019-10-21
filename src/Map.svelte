@@ -4,6 +4,7 @@
 
   let map;
   let view;
+  let graphicsLayer;
 
   import { loadModules } from "esri-loader";
   loadModules(
@@ -29,6 +30,8 @@
         zoom: 8,
         center: [-90, 38] // longitude, latitude
       });
+      graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
     })
     .catch(err => {
       // handle any errors
@@ -36,13 +39,11 @@
     });
 
   $: if (view && selectedCrime !== "") {
-    console.log("rebuild 1");
-
     view.center = [selectedCrime.lon, selectedCrime.lat];
     view.zoom = 16;
   }
-  $: if (view && crimes && crimes.length > 0) {
-    console.log("rebuild 2");
+
+  $: if (crimes && crimes.length > 0) {
     loadModules(
       ["esri/layers/GraphicsLayer", "esri/Graphic", "esri/geometry/Point"],
       {
@@ -85,11 +86,8 @@
         }
       });
 
-      map.add(
-        new GraphicsLayer({
-          graphics: graphics
-        })
-      );
+      graphicsLayer.removeAll();
+      graphicsLayer.addMany(graphics);
     });
   }
 </script>
@@ -103,7 +101,4 @@
   }
 </style>
 
-{#if selectedCrime !== ''}
-  <div>Selected: {selectedCrime.id}</div>
-{/if}
 <div id="viewDiv" />
