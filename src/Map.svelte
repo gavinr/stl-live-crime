@@ -27,8 +27,8 @@
       view = new MapView({
         container: "viewDiv",
         map: map,
-        zoom: 8,
-        center: [-90, 38] // longitude, latitude
+        zoom: 11,
+        center: [-90.15, 38.6] // longitude, latitude
       });
       graphicsLayer = new GraphicsLayer();
       map.add(graphicsLayer);
@@ -39,8 +39,20 @@
     });
 
   $: if (view && selectedCrime !== "") {
-    view.center = [selectedCrime.lon, selectedCrime.lat];
-    // view.zoom = 16;
+    if (selectedCrime === false) {
+      view.popup.visible = false;
+    } else {
+      console.log("selectedCrime", selectedCrime.id);
+      view.center = [selectedCrime.lon, selectedCrime.lat];
+      const feature = graphicsLayer.graphics.find(graphic => {
+        return graphic.attributes.id === selectedCrime.id;
+      });
+      console.log("found feature:", feature);
+      view.popup.features = [feature];
+      view.popup.location = feature.geometry;
+      view.popup.visible = true;
+      // view.zoom = 16;
+    }
   }
 
   $: if (crimes && crimes.length > 0) {

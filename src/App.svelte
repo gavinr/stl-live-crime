@@ -8,7 +8,7 @@
 
   export let name;
   export let values = [];
-  export let selectedCrime;
+  export let selectedCrime = false;
 
   const getSize = date => {
     let difference = Math.abs(new Date() - new Date(date));
@@ -91,7 +91,11 @@
 
   function listClickHandler(evt) {
     console.log("listClickHandler", evt.detail);
-    selectedCrime = evt.detail;
+    if (selectedCrime == evt.detail) {
+      selectedCrime = false; // toggle
+    } else {
+      selectedCrime = evt.detail;
+    }
   }
 </script>
 
