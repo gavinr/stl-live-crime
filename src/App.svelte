@@ -96,23 +96,29 @@
 </script>
 
 <style>
-  .left {
-    float: left;
-    width: 20%;
-    height: 800px;
+  header {
+    grid-column: 1 / span 5;
+    font-size: 40px;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  aside {
+    grid-column: span 2;
     overflow-y: scroll;
   }
-  .mapWrapper {
-    width: 80%;
-    float: left;
+
+  @media (max-width: 700px) {
+    aside {
+      grid-column: 1 / span 5;
+    }
   }
 </style>
 
-<h1>{name}</h1>
-
-<div class="left">
+<header>
+  {name}
+</header>
+<Map crimes={values} {selectedCrime} />
+<aside id="sidebar">
   <List {values} {selectedCrime} on:click={listClickHandler} />
-</div>
-<div class="mapWrapper">
-  <Map crimes={values} {selectedCrime} />
-</div>
+</aside>

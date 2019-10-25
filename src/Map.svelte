@@ -105,12 +105,20 @@
 </script>
 
 <style>
+  main {
+    grid-column: 1 / span 3;
+  }
   #viewDiv {
-    padding: 0;
-    margin: 0;
-    height: 800px;
+    height: 100%;
     width: 100%;
+  }
+  @media (max-width: 700px) {
+    main {
+      grid-column: 1 / span 5;
+    }
   }
 </style>
 
-<div id="viewDiv" />
+<main>
+  <div id="viewDiv" />
+</main>
