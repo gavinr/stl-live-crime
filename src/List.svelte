@@ -26,6 +26,6 @@
     <br />
     {crime.date}
     <br />
-    {crime.address} ({crime.lat}, {crime.lon})
+    {crime.address}
   </div>
 {/each}
