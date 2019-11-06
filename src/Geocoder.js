@@ -1,7 +1,7 @@
 const Geocode = async (address) => {
 
   // https://fetch.spec.whatwg.org/#fetch-api
-  var url = new URL("http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find"),
+  var url = new URL("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find"),
   params = {
     'text': address,
     'f': 'json'
