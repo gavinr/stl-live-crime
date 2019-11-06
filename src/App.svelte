@@ -80,14 +80,13 @@
   onMount(async function() {
     values = await getCrimes();
 
-    setInterval(async () => {
-      values = await getCrimes();
-    }, 500000);
+    // setInterval(async () => {
+    //   values = await getCrimes();
+    // }, 500000);
   });
 
   function listClickHandler(evt) {
-    console.log("listClickHandler", evt.detail);
-    if (selectedCrime == evt.detail) {
+    if (selectedCrime == evt.detail || evt.detail === false) {
       selectedCrime = false; // toggle
     } else {
       selectedCrime = evt.detail;
@@ -118,7 +117,7 @@
 <header>
   {name}
 </header>
-<Map crimes={values} {selectedCrime} />
+<Map crimes={values} {selectedCrime} on:selected={listClickHandler} />
 <aside id="sidebar">
   <List {values} {selectedCrime} on:click={listClickHandler} />
 </aside>

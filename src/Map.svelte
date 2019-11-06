@@ -1,6 +1,9 @@
 <script>
   export let selectedCrime = "";
   export let crimes = "";
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch  = createEventDispatcher();
 
   let map;
   let view;
@@ -27,11 +30,37 @@
       view = new MapView({
         container: "viewDiv",
         map: map,
-        zoom: 11,
-        center: [-90.15, 38.6] // longitude, latitude
+        zoom: 12,
+        center: [-90.28, 38.6] // longitude, latitude
       });
       graphicsLayer = new GraphicsLayer();
       map.add(graphicsLayer);
+
+      view.watch('popup.visible', (evt) => {
+        // console.log('popup.visible', evt);
+        if(evt === false) {
+          dispatch('selected', false);
+        }
+      });
+
+      view.on("click", function (event) {
+        // Search for graphics at the clicked location. View events can be used
+        // as screen locations as they expose an x,y coordinate that conforms
+        // to the ScreenPoint definition.
+        view.hitTest(event).then(function (response) {
+          if (response.results.length) {
+            var graphic = response.results.filter(function (result) {
+              // check if the graphic belongs to the layer of interest
+              return result.graphic.layer === graphicsLayer;
+            })[0].graphic;
+
+            // do something with the result graphic
+            dispatch('selected', graphic.attributes);
+          } else {
+            dispatch('selected', false);
+          }
+        });
+      });
     })
     .catch(err => {
       // handle any errors
@@ -42,12 +71,10 @@
     if (selectedCrime === false) {
       view.popup.visible = false;
     } else {
-      console.log("selectedCrime", selectedCrime.id);
       view.center = [selectedCrime.lon, selectedCrime.lat];
       const feature = graphicsLayer.graphics.find(graphic => {
         return graphic.attributes.id === selectedCrime.id;
       });
-      console.log("found feature:", feature);
       view.popup.features = [feature];
       view.popup.location = feature.geometry;
       view.popup.visible = true;
@@ -64,8 +91,8 @@
     ).then(([GraphicsLayer, Graphic, Point]) => {
       // TESTING ---------------------
 
-      const crime = crimes[5];
-      console.log("crimes", crimes);
+      // const crime = crimes[5];
+      // console.log("crimes", crimes);
       let graphics = crimes.map(crimeObject => {
         if (crimeObject.lat && crimeObject.lon) {
           const point = new Point({
@@ -75,7 +102,7 @@
           });
           const pointSymbol = {
             type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
-            style: "square",
+            style: "circle",
             color: "green",
             size: crimeObject.size + "px", // pixels
             outline: {
