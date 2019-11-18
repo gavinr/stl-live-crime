@@ -1,13 +1,19 @@
 <script>
   export let selectedCrime = "";
-  export let crimes = "";
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
+  import { crimesStore } from './stores';
 
   const dispatch  = createEventDispatcher();
 
   let map;
   let view;
   let graphicsLayer;
+  let crimes;
+
+  const unsubscribe = crimesStore.subscribe(value => {
+		crimes = value;
+  });
+  onDestroy(unsubscribe);
 
   import { loadModules } from "esri-loader";
   loadModules(

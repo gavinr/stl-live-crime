@@ -3,6 +3,7 @@
   import Map from "./Map.svelte";
   import List from "./List.svelte";
   import Geocoder from "./Geocoder";
+  import { crimesStore } from './stores';
   export let name;
   export let values = [];
   export let selectedCrime = false;
@@ -79,6 +80,9 @@
 
   onMount(async function() {
     values = await getCrimes();
+    crimesStore.update(arr => {
+      return values;
+    });
 
     // setInterval(async () => {
     //   values = await getCrimes();
@@ -117,7 +121,7 @@
 <header>
   {name}
 </header>
-<Map crimes={values} {selectedCrime} on:selected={listClickHandler} />
+<Map {selectedCrime} on:selected={listClickHandler} />
 <aside id="sidebar">
-  <List {values} {selectedCrime} on:click={listClickHandler} />
+  <List {selectedCrime} on:click={listClickHandler} />
 </aside>

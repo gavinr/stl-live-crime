@@ -2,6 +2,7 @@
   export let values;
   export let selectedCrime;
   import { createEventDispatcher } from 'svelte';
+  import { crimesStore } from './stores';
 
   const dispatch  = createEventDispatcher();
 
@@ -20,7 +21,7 @@
   }
 </style>
 
-{#each values as crime}
+{#each $crimesStore as crime}
   <div class="card" class:highlight={selectedCrime && crime.id === selectedCrime.id} on:click={() => handleClick(crime)} >
     {crime.offense}
     <br />
