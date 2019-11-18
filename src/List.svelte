@@ -3,7 +3,8 @@
   export let selectedCrime;
   import { createEventDispatcher } from 'svelte';
   import { crimesStore } from './stores';
-
+  import moment from "moment";
+  
   const dispatch  = createEventDispatcher();
 
   function handleClick(evt) {
@@ -25,7 +26,7 @@
   <div class="card" class:highlight={selectedCrime && crime.id === selectedCrime.id} on:click={() => handleClick(crime)} >
     {crime.offense}
     <br />
-    {crime.date}
+    {moment(crime.date).format('h:mm:ss a')}
     <br />
     {crime.address}
   </div>
