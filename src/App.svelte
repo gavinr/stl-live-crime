@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Map from "./Map.svelte";
   import List from "./List.svelte";
+  import Info from "./Info.svelte";
   import { crimesStore, startUpdating } from './stores';
   export let name;
   export let selectedCrime = false;
@@ -28,6 +29,9 @@
     padding: 10px;
     overflow: hidden;
   }
+  header span {
+    float: right;
+  }
 
   aside {
     grid-column: span 2;
@@ -41,8 +45,10 @@
   }
 </style>
 
+
 <header>
   {name}
+  <span><Info {name}></Info></span>
 </header>
 <Map {selectedCrime} {centerMap} on:selected={ (e) => {listClickHandler(e, false)} } />
 <aside id="sidebar">
