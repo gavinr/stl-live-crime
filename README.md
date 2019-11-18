@@ -1,9 +1,9 @@
 # St. Louis Live Crime
 A live map of crime in the city of St. Louis, MO.
 
-[![Screenshot](https://raw.githubusercontent.com/gavinr/stl-live-crime/master/screenshot.png)](http://gavinr.github.io/stl-live-crime/)
+[![Screenshot](https://raw.githubusercontent.com/gavinr/stl-live-crime/master/screenshot.png)](https://gavinr.github.io/stl-live-crime/)
 
-[View Here](http://gavinr.github.io/stl-live-crime/)
+[View Here](https://gavinr.github.io/stl-live-crime/)
 
 ## Technologies
 
