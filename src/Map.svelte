@@ -1,5 +1,6 @@
 <script>
   export let selectedCrime = "";
+  export let centerMap = false;
   import { createEventDispatcher, onDestroy } from 'svelte';
   import { crimesStore } from './stores';
 
@@ -77,7 +78,9 @@
     if (selectedCrime === false) {
       view.popup.visible = false;
     } else {
-      view.center = [selectedCrime.lon, selectedCrime.lat];
+      if(centerMap === true) {
+        view.center = [selectedCrime.lon, selectedCrime.lat];
+      }
       const feature = graphicsLayer.graphics.find(graphic => {
         return graphic.attributes.id === selectedCrime.id;
       });

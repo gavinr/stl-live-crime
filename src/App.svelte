@@ -5,15 +5,17 @@
   import { crimesStore, startUpdating } from './stores';
   export let name;
   export let selectedCrime = false;
+  export let centerMap = false;
 
   onMount(async function() {
     startUpdating();
   });
 
-  function listClickHandler(evt) {
+  function listClickHandler(evt, c) {
     if (selectedCrime == evt.detail || evt.detail === false) {
       selectedCrime = false; // toggle
     } else {
+      centerMap = c;
       selectedCrime = evt.detail;
     }
   }
@@ -42,7 +44,7 @@
 <header>
   {name}
 </header>
-<Map {selectedCrime} on:selected={listClickHandler} />
+<Map {selectedCrime} {centerMap} on:selected={ (e) => {listClickHandler(e, false)} } />
 <aside id="sidebar">
-  <List {selectedCrime} on:click={listClickHandler} />
+  <List {selectedCrime} on:click={ (e) => {listClickHandler(e, true)} } />
 </aside>
