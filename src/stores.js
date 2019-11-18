@@ -4,7 +4,6 @@ import Geocoder from "./Geocoder";
 export const crimesStore = writable([]);
 
 export const startUpdating = async () => {
-  console.log('here');
   const values = await getCrimes();
   crimesStore.update(arr => {
     return values;
