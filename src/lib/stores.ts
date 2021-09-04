@@ -15,7 +15,6 @@ export const startUpdating = async () => {
 
     setInterval(async () => {
         const values = await getCrimes();
-        console.log('updating', values);
         crimesStore.update(arr => {
             return values;
         });
@@ -37,15 +36,11 @@ const getSize = date => {
 };
 
 const querySelectorAllFunction = (query, context) => {
-    console.log('querySelectorAllFunction query:', query, 'context: ', context);
-
     const res = Array.prototype.slice.call(context.querySelectorAll(query));
-    console.log('res', res);
     return res;
 };
 
 const getCrime = async (row): Promise<Crime> => {
-    console.log('getCrime', row);
     const [date, id, address, offense] = querySelectorAllFunction(
         "td",
         row
@@ -81,9 +76,11 @@ const getCrime = async (row): Promise<Crime> => {
 };
 
 const getCrimes = async (): Promise<Crime[]> => {
-    console.log('getCrimes');
+
+    // this is a cache to
+    // http://www.slmpd.org/cfs.aspx
     const response = await fetch(
-        "https://jsonp.afeld.me?url=http://www.slmpd.org/cfs.aspx"
+        "https://muddy-glitter-47c1.alligator.workers.dev"
     );
     const text = await response.text();
 
