@@ -62,7 +62,7 @@
         });
     };
 
-    $: if (view && selectedCrime) {
+    $: if (view && graphicsLayer) {
         if (selectedCrime) {
             if (centerMap === true) {
                 view.center = [selectedCrime.lon, selectedCrime.lat];
@@ -78,11 +78,10 @@
         }
     }
 
-    $: if (crimes && crimes.length > 0) {
+    $: if (crimes && crimes.length > 0 && graphicsLayer) {
         let graphics = crimes.map((crimeObject) => {
             if (crimeObject.lat && crimeObject.lon) {
                 const point = new Point({
-                    // type: "point", // autocasts as new Polyline()
                     latitude: crimeObject.lat,
                     longitude: crimeObject.lon,
                 });
