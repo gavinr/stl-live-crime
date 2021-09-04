@@ -3,9 +3,7 @@
 
     import { createEventDispatcher } from "svelte";
     import { crimesStore } from "./stores";
-    // import moment from "moment";
 
-    // export let values;
     export let selectedCrime: Crime;
 
     const dispatch = createEventDispatcher();

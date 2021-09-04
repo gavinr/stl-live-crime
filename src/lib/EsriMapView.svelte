@@ -25,10 +25,6 @@
     onDestroy(unsubscribe);
 
     const createMapView = (domNode) => {
-        // then we load a web map from an id
-        // map = new Map({
-        //     basemap: "streets",
-        // });
         view = new MapView({
             container: domNode,
             map: {
@@ -41,7 +37,6 @@
         view.map.add(graphicsLayer);
 
         view.watch("popup.visible", (evt) => {
-            // console.log('popup.visible', evt);
             if (evt === false) {
                 dispatch("selected", false);
             }
@@ -78,17 +73,12 @@
             view.popup.features = [feature];
             view.popup.location = feature.geometry;
             view.popup.visible = true;
-            // view.zoom = 16;
         } else {
             view.popup.visible = false;
         }
     }
 
     $: if (crimes && crimes.length > 0) {
-        // TESTING ---------------------
-
-        // const crime = crimes[5];
-        // console.log("crimes", crimes);
         let graphics = crimes.map((crimeObject) => {
             if (crimeObject.lat && crimeObject.lon) {
                 const point = new Point({

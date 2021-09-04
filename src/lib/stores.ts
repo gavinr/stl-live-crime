@@ -4,7 +4,6 @@ import Geocoder from "./Geocoder";
 
 import type { Crime } from './types';
 
-// export const crimesStore: Writable<Crime[]> = writable([]);
 export const crimesStore = writable<Crime[]>([]);
 
 
@@ -51,7 +50,6 @@ const getCrime = async (row): Promise<Crime> => {
         "td",
         row
     ).map(cell => {
-        // console.log("returning", cell.querySelector("font").innerHTML);
         return cell.querySelector("font").innerHTML;
     });
 
@@ -60,7 +58,6 @@ const getCrime = async (row): Promise<Crime> => {
         ", St. Louis, MO, USA";
 
     const location = await Geocoder(fullAddress);
-    // console.log("location:", location);
     let lat = false;
     let lon = false;
     if (location.locations.length > 0) {
@@ -97,7 +94,5 @@ const getCrimes = async (): Promise<Crime[]> => {
     const rowsPromises: Promise<Crime>[] = rows.map(getCrime);
     const values = Promise.all(rowsPromises);
 
-    // const location = await Geocoder(values.address);
-    // console.log('location', location);
     return values;
 };
