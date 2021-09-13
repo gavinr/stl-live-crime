@@ -8,6 +8,7 @@
     import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
     import Graphic from "@arcgis/core/Graphic";
     import Point from "@arcgis/core/geometry/Point";
+    import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
     export let selectedCrime: Crime;
     export let centerMap = false;
@@ -24,10 +25,28 @@
     onDestroy(unsubscribe);
 
     const createMapView = (domNode) => {
+        const cityBoundary: FeatureLayer = new FeatureLayer({
+            url: "https://services1.arcgis.com/g2TonOxuRkIqSOFx/arcgis/rest/services/st_louis_mo_boundary/FeatureServer/0",
+        });
+        cityBoundary.renderer = {
+            type: "simple",
+            symbol: {
+                type: "simple-fill", // autocasts as new SimpleFillSymbol()
+                color: [51, 51, 204, 0.0],
+                style: "solid",
+                outline: {
+                    // autocasts as new SimpleLineSymbol()
+                    color: "black",
+                    width: 2,
+                },
+            },
+        };
+
         view = new MapView({
             container: domNode,
             map: {
                 basemap: "streets",
+                layers: [cityBoundary],
             },
             zoom: 12,
             center: [-90.28, 38.6], // longitude, latitude
