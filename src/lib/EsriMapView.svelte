@@ -2,9 +2,9 @@
     import { createEventDispatcher, onDestroy } from "svelte";
     import { crimesStore } from "./stores";
     import type { Crime } from "./types";
+    import "@arcgis/core/assets/esri/themes/light/main.css";
 
     import MapView from "@arcgis/core/views/MapView";
-    import Map from "@arcgis/core/Map";
     import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
     import Graphic from "@arcgis/core/Graphic";
     import Point from "@arcgis/core/geometry/Point";
@@ -14,7 +14,6 @@
 
     const dispatch = createEventDispatcher();
 
-    let map;
     let view;
     let graphicsLayer;
     let crimes;
