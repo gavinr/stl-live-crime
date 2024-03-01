@@ -1,4 +1,5 @@
 # St. Louis Live Crime
+
 ![GitHub package.json dependency version (dev dep on branch)](https://img.shields.io/github/package-json/dependency-version/gavinr/stl-live-crime/dev/@arcgis/core)
 
 A live map of crime in the city of St. Louis, MO.
@@ -9,7 +10,7 @@ A live map of crime in the city of St. Louis, MO.
 
 ## Technologies
 
-* ArcGIS API for JavaScript v4
+* ArcGIS Maps SDK for JavaScript v4
 * Svelte
 
 ## Get Started
